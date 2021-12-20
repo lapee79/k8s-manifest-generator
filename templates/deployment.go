@@ -27,10 +27,12 @@ spec:
               - "20"
         ports:
         - containerPort: {{.ContainerPort}}
+        {{- if .Secret}}
         volumeMounts:
         - name: {{.Name}}
           mountPath: "/mnt/secrets-store"
           readOnly: true
+        {{- end}}
         {{- if .Config}}
         envFrom:
         - configMapRef:
@@ -78,6 +80,6 @@ spec:
             volumeAttributes:
               secretProviderClass: "{{.Name}}"
             nodePublishSecretRef:
-              name: secrets-store-creds
+              name: {{.AzKvSpSecret}}
       {{- end}}
 `

@@ -1,0 +1,32 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - 'release-v*'
+
+env:
+  GOLANG_VERSION: '1.17'
+
+jobs:
+
+  release-linux-amd64:
+    name: release linux/amd64
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.GOLANG_VERSION }}
+
+    - name: Test
+      run: go test -v ./...
+
+    - name: Publish release
+      uses: wangyoucao577/go-release-action@v1.22
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: linux
+        goarch: amd64

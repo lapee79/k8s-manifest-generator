@@ -9,6 +9,17 @@ This is the sample application spec JSON file.
   "Name": "webSvc1",
   "NameSpace": "test",
   "ContainerPort": 80,
+  "ServicePort": 80,
+  "CommonLabels": [
+    {"Key": "app.kubernetes.io/instance", "Value": "webSvc1"},
+    {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
+  ],
+  "CommonAnnotations": [
+    {"Key": "commitAuther", "Value": "lapee79"},
+    {"Key": "buildId", "Value": "6776f266"}
+  ],
+  "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
+  "ImageTag": "6776f266",
   "Config": [
     {"Key": "ConfKey1", "Value": "ConfVal1"},
     {"Key": "ConfKey2", "Value": "ConfVal2"}
@@ -28,7 +39,14 @@ This is the sample application spec JSON file.
       "Memory": "256Mi"
     }
   },
+  "AutoScale": {
+    "MinPodNum": 1,
+    "MaxPodNum": 10,
+    "CpuUsage": 40,
+    "MemUsage": 90
+  },
   "AzKV":  "az-kv-01",
-  "AzTid": "1234-12345678-00000000"
+  "AzTid": "1234-12345678-00000000",
+  "AzKvSpSecret": "secrets-store-creds"
 }
 ```
