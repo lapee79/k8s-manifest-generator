@@ -13,6 +13,17 @@ var sampleAppJSON01 = `
   "Name": "webSvc1",
   "NameSpace": "test",
   "ContainerPort": 80,
+  "ServicePort": 80,
+  "CommonLabels": [
+    {"Key": "app.kubernetes.io/instance", "Value": "webSvc1"},
+    {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
+  ],
+  "CommonAnnotations": [
+    {"Key": "commitAuther", "Value": "lapee79"},
+    {"Key": "buildId", "Value": "6776f266"}
+  ],
+  "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
+  "ImageTag": "6776f266",
   "Config": [
     {"Key": "ConfKey1", "Value": "ConfVal1"},
     {"Key": "ConfKey2", "Value": "ConfVal2"}
@@ -32,8 +43,15 @@ var sampleAppJSON01 = `
       "Memory": "256Mi"
     }
   },
+  "AutoScale": {
+    "MinPodNum": 1,
+    "MaxPodNum": 10,
+    "CpuUsage": 40,
+    "MemUsage": 90
+  },
   "AzKV":  "az-kv-01",
-  "AzTid": "1234-12345678-00000000"
+  "AzTid": "1234-12345678-00000000",
+  "AzKvSpSecret": "secrets-store-creds"
 }
 `
 var sampleAppJSON02 = `
@@ -41,12 +59,28 @@ var sampleAppJSON02 = `
   "Name": "webSvc1",
   "NameSpace": "test",
   "ContainerPort": 80,
+  "ServicePort": 80,
+  "CommonLabels": [
+    {"Key": "app.kubernetes.io/instance", "Value": "webSvc1"},
+    {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
+  ],
+  "CommonAnnotations": [
+    {"Key": "commitAuther", "Value": "lapee79"},
+    {"Key": "buildId", "Value": "6776f266"}
+  ],
+  "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
+  "ImageTag": "6776f266",
   "HealthCheckURL": "/ready",
   "Resources": {
     "Requests": {
       "CPU": "100m",
       "Memory": "128Mi"
     }
+  },
+  "AutoScale": {
+    "MinPodNum": 1,
+    "MaxPodNum": 10,
+    "CpuUsage": 40
   }
 }
 `
@@ -197,10 +231,6 @@ spec:
               - "20"
         ports:
         - containerPort: 80
-        volumeMounts:
-        - name: webSvc1
-          mountPath: "/mnt/secrets-store"
-          readOnly: true
         readinessProbe:
           failureThreshold: 3
           httpGet:
@@ -226,6 +256,105 @@ spec:
             cpu: 100m
             memory: 128Mi
 `
+	wantServiceResult := `apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: webSvc1
+  name: webSvc1
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: webSvc1
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+`
+	wantHpaResult01 := `apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app.kubernetes.io/name: webSvc1
+  name: webSvc1
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: webSvc1
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 40
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 90
+`
+	wantHpaResult02 := `apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app.kubernetes.io/name: webSvc1
+  name: webSvc1
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: webSvc1
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 40
+`
+	wantKustomizationResult01 := `apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonLabels:
+  app.kubernetes.io/instance: webSvc1
+  app.kubernetes.io/environment: dev2
+commonAnnotations:
+  commitAuther: lapee79
+  buildId: 6776f266
+resources:
+- service.yaml
+- deployment.yaml
+- hpa.yaml
+- configmap.yaml
+- secretproviderclass.yaml
+images:
+- name: private-image
+  newName: artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs
+  newTag: 6776f266
+`
+	wantKustomizationResult02 := `apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonLabels:
+  app.kubernetes.io/instance: webSvc1
+  app.kubernetes.io/environment: dev2
+commonAnnotations:
+  commitAuther: lapee79
+  buildId: 6776f266
+resources:
+- service.yaml
+- deployment.yaml
+- hpa.yaml
+images:
+- name: private-image
+  newName: artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs
+  newTag: 6776f266
+`
 
 	var tests = []struct {
 		testName   string
@@ -237,6 +366,11 @@ spec:
 		{testName: "GenerateSecretProviderClass", app: sampleApp01, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassResult},
 		{testName: "GenerateDeployment01", app: sampleApp01, tmpl: templates.Deployment, wantResult: wantDeploymentResult01},
 		{testName: "GenerateDeployment02", app: sampleApp02, tmpl: templates.Deployment, wantResult: wantDeploymentResult02},
+		{testName: "GenerateService", app: sampleApp01, tmpl: templates.Service, wantResult: wantServiceResult},
+		{testName: "GenerateHPA01", app: sampleApp01, tmpl: templates.Hpa, wantResult: wantHpaResult01},
+		{testName: "GenerateHPA02", app: sampleApp02, tmpl: templates.Hpa, wantResult: wantHpaResult02},
+		{testName: "GenerateKustomization01", app: sampleApp01, tmpl: templates.Kustomization, wantResult: wantKustomizationResult01},
+		{testName: "GenerateKustomization02", app: sampleApp02, tmpl: templates.Kustomization, wantResult: wantKustomizationResult02},
 	}
 
 	for _, tt := range tests {

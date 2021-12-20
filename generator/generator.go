@@ -23,18 +23,30 @@ type KeyValPair struct {
 }
 
 type Application struct {
-	Name           string        `json:"name"`
-	NameSpace      string        `json:"nameSpace"`
-	ContainerPort  int           `json:"containerPort"`
-	Config         *[]KeyValPair `json:"config,omitempty"`
-	Secret         *[]KeyValPair `json:"secret,omitempty"`
-	HealthCheckURL string        `json:"healthCheckURL"`
-	Resources      struct {
+	Name              string        `json:"name"`
+	NameSpace         string        `json:"nameSpace"`
+	CommonLabels      *[]KeyValPair `json:"commonLabels"`
+	CommonAnnotations *[]KeyValPair `json:"commonAnnotations"`
+	ImageUrl          string        `json:"imageUrl"`
+	ImageTag          string        `json:"imageTag"`
+	ContainerPort     int           `json:"containerPort"`
+	ServicePort       int           `json:"servicePort"`
+	Config            *[]KeyValPair `json:"config,omitempty"`
+	Secret            *[]KeyValPair `json:"secret,omitempty"`
+	HealthCheckURL    string        `json:"healthCheckURL"`
+	Resources         struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
-	AzKV  *string `json:"AzKV,omitempty"`
-	AzTid *string `json:"AzTid,omitempty"`
+	AutoScale struct {
+		MinPodNum int `json:"minPodNum"`
+		MaxPodNum int `json:"maxPodNum"`
+		CpuUsage  int `json:"cpuUsage"`
+		MemUsage  int `json:"memUsage,omitempty"`
+	} `json:"autoScale"`
+	AzKV         *string `json:"AzKV,omitempty"`
+	AzTid        *string `json:"AzTid,omitempty"`
+	AzKvSpSecret *string `json:"azKvSpSecret,omitempty"`
 }
 
 // Run generates the Kubernetes YAML manifests.
@@ -55,14 +67,19 @@ func Run(path string) {
 		err = os.Mkdir(app.NameSpace, os.FileMode(0755))
 		logger.Error(err)
 	}
-	os.Chdir(app.NameSpace)
+	err = os.Chdir(app.NameSpace)
+	logger.Error(err)
 	if _, err = os.Stat(app.Name); os.IsNotExist(err) {
 		err = os.Mkdir(app.Name, os.FileMode(0755))
 		logger.Error(err)
 	}
-	os.Chdir(app.Name)
+	err = os.Chdir(app.Name)
+	logger.Error(err)
 
+	tmpls["kustomization.yaml"] = templates.Kustomization
 	tmpls["deployment.yaml"] = templates.Deployment
+	tmpls["service.yaml"] = templates.Service
+	tmpls["hpa.yaml"] = templates.Hpa
 	if app.Config != nil {
 		tmpls["configmap.yaml"] = templates.ConfigMap
 	}
