@@ -287,16 +287,16 @@ spec:
   metrics:
   - type: Resource
     resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 40
-  - type: Resource
-    resource:
       name: memory
       target:
         type: Utilization
         averageUtilization: 90
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 40
 `
 	wantHpaResult02 := `apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler

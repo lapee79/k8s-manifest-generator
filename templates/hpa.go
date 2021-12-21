@@ -14,12 +14,6 @@ spec:
   minReplicas: {{.AutoScale.MinPodNum}}
   maxReplicas: {{.AutoScale.MaxPodNum}}
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: {{.AutoScale.CpuUsage}}
   {{- if .AutoScale.MemUsage}}
   - type: Resource
     resource:
@@ -28,4 +22,10 @@ spec:
         type: Utilization
         averageUtilization: {{.AutoScale.MemUsage}}
   {{- end}}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{.AutoScale.CpuUsage}}
 `
