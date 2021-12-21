@@ -8,7 +8,7 @@ commonLabels:
 {{- end}}
 commonAnnotations:
 {{- range $value := .CommonAnnotations}}
-  {{$value.Key}}: {{$value.Value}}
+  {{$value.Key}}: "{{$value.Value}}"
 {{- end}}
 resources:
 - service.yaml
