@@ -325,8 +325,8 @@ commonLabels:
   app.kubernetes.io/instance: webSvc1
   app.kubernetes.io/environment: dev2
 commonAnnotations:
-  commitAuther: lapee79
-  buildId: 6776f266
+  commitAuther: "lapee79"
+  buildId: "6776f266"
 resources:
 - service.yaml
 - deployment.yaml
@@ -344,8 +344,8 @@ commonLabels:
   app.kubernetes.io/instance: webSvc1
   app.kubernetes.io/environment: dev2
 commonAnnotations:
-  commitAuther: lapee79
-  buildId: 6776f266
+  commitAuther: "lapee79"
+  buildId: "6776f266"
 resources:
 - service.yaml
 - deployment.yaml
