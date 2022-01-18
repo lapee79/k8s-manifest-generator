@@ -85,6 +85,33 @@ var sampleAppJSON02 = `
 }
 `
 
+var sampleAppJSON03 = `
+{
+  "Name": "webSvc1",
+  "NameSpace": "test",
+  "ContainerPort": 80,
+  "ServicePort": 80,
+  "CommonLabels": [
+    {"Key": "app.kubernetes.io/instance", "Value": "webSvc1"},
+    {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
+  ],
+  "CommonAnnotations": [
+    {"Key": "commitAuther", "Value": "lapee79"},
+    {"Key": "buildId", "Value": "6776f266"}
+  ],
+  "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
+  "ImageTag": "6776f266",
+  "HealthCheckURL": "/ready",
+  "Resources": {
+    "Requests": {
+      "CPU": "100m",
+      "Memory": "128Mi"
+    }
+  },
+  "Replicas": 3
+}
+`
+
 func TestGenerator(t *testing.T) {
 	var sampleApp01 Application
 
@@ -94,6 +121,11 @@ func TestGenerator(t *testing.T) {
 	var sampleApp02 Application
 
 	err = json.Unmarshal([]byte(sampleAppJSON02), &sampleApp02)
+	logger.Error(err)
+
+	var sampleApp03 Application
+
+	err = json.Unmarshal([]byte(sampleAppJSON03), &sampleApp03)
 	logger.Error(err)
 
 	wantConfigmapResult := `apiVersion: v1
@@ -256,6 +288,59 @@ spec:
             cpu: 100m
             memory: 128Mi
 `
+	wantDeploymentResult03 := `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webSvc1
+  labels:
+    app.kubernetes.io/name: webSvc1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: webSvc1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: webSvc1
+    spec:
+      containers:
+      - name: app
+        image: private-image
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - "20"
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+`
 	wantServiceResult := `apiVersion: v1
 kind: Service
 metadata:
@@ -366,6 +451,7 @@ images:
 		{testName: "GenerateSecretProviderClass", app: sampleApp01, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassResult},
 		{testName: "GenerateDeployment01", app: sampleApp01, tmpl: templates.Deployment, wantResult: wantDeploymentResult01},
 		{testName: "GenerateDeployment02", app: sampleApp02, tmpl: templates.Deployment, wantResult: wantDeploymentResult02},
+		{testName: "GenerateDeployment03", app: sampleApp03, tmpl: templates.Deployment, wantResult: wantDeploymentResult03},
 		{testName: "GenerateService", app: sampleApp01, tmpl: templates.Service, wantResult: wantServiceResult},
 		{testName: "GenerateHPA01", app: sampleApp01, tmpl: templates.Hpa, wantResult: wantHpaResult01},
 		{testName: "GenerateHPA02", app: sampleApp02, tmpl: templates.Hpa, wantResult: wantHpaResult02},

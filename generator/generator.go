@@ -38,7 +38,8 @@ type Application struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
-	AutoScale struct {
+	Replicas  *int
+	AutoScale *struct {
 		MinPodNum int `json:"minPodNum"`
 		MaxPodNum int `json:"maxPodNum"`
 		CpuUsage  int `json:"cpuUsage"`
@@ -79,7 +80,9 @@ func Run(path string) {
 	tmpls["kustomization.yaml"] = templates.Kustomization
 	tmpls["deployment.yaml"] = templates.Deployment
 	tmpls["service.yaml"] = templates.Service
-	tmpls["hpa.yaml"] = templates.Hpa
+	if app.AutoScale != nil && app.Replicas == nil {
+		tmpls["hpa.yaml"] = templates.Hpa
+	}
 	if app.Config != nil {
 		tmpls["configmap.yaml"] = templates.ConfigMap
 	}

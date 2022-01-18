@@ -7,6 +7,9 @@ metadata:
   labels:
     app.kubernetes.io/name: {{.Name}}
 spec:
+  {{- if .Replicas}}
+  replicas: {{.Replicas}}
+  {{- end}}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{.Name}}
