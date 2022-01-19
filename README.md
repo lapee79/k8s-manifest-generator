@@ -1,3 +1,4 @@
+![example workflow](https://github.com/lapee79/k8s-manifest-generator/actions/workflows/verify-pr.yml/badge.svg)
 # k8s-manifest-generator
 
 The `k8s-manifest-generator` CLI is developed to generate the Kustomize manifests. It helps to integrate generating the Kustomize manifests into a CD pipeline.
@@ -28,7 +29,35 @@ This is the sample application spec JSON file.
     {"Key": "SecKey1", "Value": "SecVal1"},
     {"Key": "SecKey2", "Value": "SecVal2"}
   ],
-  "HealthCheckURL": "/ready",
+  "ReadinessProbe": {
+    "InitialDelaySeconds": 20,
+    "PeriodSeconds": 10,
+    "TimeoutSeconds": 10,
+    "SuccessThreshold": 1,
+    "FailureThreshold": 3,
+    "HttpGet": {
+      "Path": "/healthz",
+      "Port": 80,
+      "HttpHeader": [
+        {"Name": "Custom-Header-1", "Value": "Awesome1"},
+        {"Name": "Custom-Header-2", "Value": "Awesome2"}
+      ]
+    }
+  },
+  "LivenessProbe": {
+    "InitialDelaySeconds": 20,
+    "PeriodSeconds": 10,
+    "TimeoutSeconds": 10,
+    "SuccessThreshold": 1,
+    "FailureThreshold": 3,
+    "HttpGet": {
+      "Path": "/healthz",
+      "Port": 80,
+      "HttpHeader": [
+        {"Name": "Custom-Header-3", "Value": "Awesome3"}
+      ]
+    }
+  },
   "Resources": {
     "Requests": {
       "CPU": "100m",

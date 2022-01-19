@@ -45,26 +45,88 @@ spec:
         - secretRef:
             name: {{.Name}}
         {{- end}}
+        {{- if .ReadinessProbe}}
         readinessProbe:
-          failureThreshold: 3
+          {{- if .ReadinessProbe.Exec}}
+          exec:
+            command:
+            {{- range $value := .ReadinessProbe.Exec.Command}}
+            - {{$value}}
+            {{- end}}
+          {{- end}}
+          {{- if .ReadinessProbe.HttpGet}}
           httpGet:
-            path: {{.HealthCheckURL}}
-            port: {{.ContainerPort}}
-            scheme: HTTP
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 10
+            path: {{.ReadinessProbe.HttpGet.Path}}
+            port: {{.ReadinessProbe.HttpGet.Port}}
+            {{- if .ReadinessProbe.HttpGet.HttpHeader}}
+            httpHeaders:
+            {{- range $value := .ReadinessProbe.HttpGet.HttpHeader}}
+            - name: {{$value.Name}}
+              value: {{$value.Value}}
+            {{- end}}
+            {{- end}}
+          {{- end}}
+          {{- if .ReadinessProbe.TcpSocket}}
+          tcpSocket:
+            port: {{.ReadinessProbe.TcpSocket.Port}}
+          {{- end}}
+          {{- if .ReadinessProbe.InitialDelaySeconds}}
+          initialDelaySeconds: {{.ReadinessProbe.InitialDelaySeconds}}
+          {{- end}}
+          {{- if .ReadinessProbe.PeriodSeconds}}
+          periodSeconds: {{.ReadinessProbe.PeriodSeconds}}
+          {{- end}}
+          {{- if .ReadinessProbe.TimeoutSeconds}}
+          timeoutSeconds: {{.ReadinessProbe.TimeoutSeconds}}
+          {{- end}}
+          {{- if .ReadinessProbe.SuccessThreshold}}
+          successThreshold: {{.ReadinessProbe.SuccessThreshold}}
+          {{- end}}
+          {{- if .ReadinessProbe.FailureThreshold}}
+          failureThreshold: {{.ReadinessProbe.FailureThreshold}}
+          {{- end}}
+        {{- end}}
+        {{- if .LivenessProbe}}
         livenessProbe:
-          failureThreshold: 3
+          {{- if .LivenessProbe.Exec}}
+          exec:
+            command:
+            {{- range $value := .LivenessProbe.Exec.Command}}
+            - {{$value}}
+            {{- end}}
+          {{- end}}
+          {{- if .LivenessProbe.HttpGet}}
           httpGet:
-            path: {{.HealthCheckURL}}
-            port: {{.ContainerPort}}
-            scheme: HTTP
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 10
+            path: {{.LivenessProbe.HttpGet.Path}}
+            port: {{.LivenessProbe.HttpGet.Port}}
+            {{- if .LivenessProbe.HttpGet.HttpHeader}}
+            httpHeaders:
+            {{- range $value := .LivenessProbe.HttpGet.HttpHeader}}
+            - name: {{$value.Name}}
+              value: {{$value.Value}}
+            {{- end}}
+            {{- end}}
+          {{- end}}
+          {{- if .LivenessProbe.TcpSocket}}
+          tcpSocket:
+            port: {{.LivenessProbe.TcpSocket.Port}}
+          {{- end}}
+          {{- if .LivenessProbe.InitialDelaySeconds}}
+          initialDelaySeconds: {{.LivenessProbe.InitialDelaySeconds}}
+          {{- end}}
+          {{- if .LivenessProbe.PeriodSeconds}}
+          periodSeconds: {{.LivenessProbe.PeriodSeconds}}
+          {{- end}}
+          {{- if .LivenessProbe.TimeoutSeconds}}
+          timeoutSeconds: {{.LivenessProbe.TimeoutSeconds}}
+          {{- end}}
+          {{- if .LivenessProbe.SuccessThreshold}}
+          successThreshold: {{.LivenessProbe.SuccessThreshold}}
+          {{- end}}
+          {{- if .LivenessProbe.FailureThreshold}}
+          failureThreshold: {{.LivenessProbe.FailureThreshold}}
+          {{- end}}
+        {{- end}}
         resources:
           requests:
             cpu: {{.Resources.Requests.CPU}}
@@ -86,3 +148,25 @@ spec:
               name: {{.AzKvSpSecret}}
       {{- end}}
 `
+
+type HealthCheck struct {
+	InitialDelaySeconds *int `json:"initialDelaySeconds"`
+	PeriodSeconds       *int `json:"periodSeconds"`
+	TimeoutSeconds      *int `json:"timeoutSeconds"`
+	SuccessThreshold    *int `json:"successThreshold"`
+	FailureThreshold    *int `json:"failureThreshold"`
+	Exec                *struct {
+		Command []string `json:"command"`
+	} `json:"exec"`
+	HttpGet *struct {
+		Path       string `json:"path"`
+		Port       int    `json:"port"`
+		HttpHeader *[]struct {
+			Name  string `json:"name"`
+			Value string `json:"value"`
+		} `json:"httpHeader"`
+	} `json:"httpGet"`
+	TcpSocket *struct {
+		Port int `json:"port"`
+	} `json:"tcpSocket"`
+}
