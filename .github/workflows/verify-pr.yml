@@ -1,6 +1,9 @@
 name: Verify PR
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
@@ -51,5 +54,7 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    - name: Run Test
+      run:
+        go test -v ./... -covermode=count -coverprofile=coverage.out
+        go tool cover -func=coverage.out -o=coverage.out

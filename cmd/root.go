@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/lapee79/k8s-manifest-generator/logger"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 var file string
@@ -14,13 +14,18 @@ var rootCmd = &cobra.Command{
 	Long: `k8s-manifest-generator generates the Kustomize manifests using 
 the application definition JSON file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		err := cmd.Help()
+		if err != nil {
+			return
+		}
 	},
 }
 
 func Execute() {
 	err := rootCmd.Execute()
-	logger.Error(err)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func init() {}
