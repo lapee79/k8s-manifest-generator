@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/lapee79/k8s-manifest-generator/generator"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 // generateCmd represents the generate command
@@ -14,7 +15,10 @@ var generateCmd = &cobra.Command{
 Examples:
   k8s-manifest-generator -f app.json`,
 	Run: func(cmd *cobra.Command, args []string) {
-		generator.Run(file)
+		err := generator.Run(file)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	},
 }
 
@@ -22,5 +26,8 @@ func init() {
 	rootCmd.AddCommand(generateCmd)
 
 	generateCmd.Flags().StringVarP(&file, "file", "f", "", "The application definition JSON file")
-	generateCmd.MarkFlagRequired("file")
+	err := generateCmd.MarkFlagRequired("file")
+	if err != nil {
+		return
+	}
 }

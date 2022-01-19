@@ -2,9 +2,12 @@ package generator
 
 import (
 	"encoding/json"
-	"github.com/lapee79/k8s-manifest-generator/logger"
 	"github.com/lapee79/k8s-manifest-generator/templates"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -32,7 +35,35 @@ var sampleAppJSON01 = `
     {"Key": "SecKey1", "Value": "SecVal1"},
     {"Key": "SecKey2", "Value": "SecVal2"}
   ],
-  "HealthCheckURL": "/ready",
+  "ReadinessProbe": {
+    "InitialDelaySeconds": 20,
+    "PeriodSeconds": 10,
+    "TimeoutSeconds": 10,
+    "SuccessThreshold": 1,
+    "FailureThreshold": 3,
+    "HttpGet": {
+      "Path": "/healthz",
+      "Port": 80,
+      "HttpHeader": [
+        {"Name": "Custom-Header-1", "Value": "Awesome1"},
+        {"Name": "Custom-Header-2", "Value": "Awesome2"}
+      ]
+    }
+  },
+  "LivenessProbe": {
+    "InitialDelaySeconds": 20,
+    "PeriodSeconds": 10,
+    "TimeoutSeconds": 10,
+    "SuccessThreshold": 1,
+    "FailureThreshold": 3,
+    "HttpGet": {
+      "Path": "/healthz",
+      "Port": 80,
+      "HttpHeader": [
+        {"Name": "Custom-Header-3", "Value": "Awesome3"}
+      ]
+    }
+  },
   "Resources": {
     "Requests": {
       "CPU": "100m",
@@ -70,7 +101,14 @@ var sampleAppJSON02 = `
   ],
   "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
   "ImageTag": "6776f266",
-  "HealthCheckURL": "/ready",
+  "LivenessProbe": {
+    "Exec": {
+      "Command": [
+        "cat",
+        "/tmp/test"
+      ]
+    }
+  },
   "Resources": {
     "Requests": {
       "CPU": "100m",
@@ -101,7 +139,11 @@ var sampleAppJSON03 = `
   ],
   "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
   "ImageTag": "6776f266",
-  "HealthCheckURL": "/ready",
+  "LivenessProbe": {
+    "TcpSocket": {
+      "Port": 80
+    }
+  },
   "Resources": {
     "Requests": {
       "CPU": "100m",
@@ -112,21 +154,65 @@ var sampleAppJSON03 = `
 }
 `
 
+func TestRun(t *testing.T) {
+	t.Run("Run", func(t *testing.T) {
+		cwd, err := os.Getwd()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		testAppJson := "testAppJson.json"
+		testAppJsonPath := filepath.Join(cwd, testAppJson)
+		err = ioutil.WriteFile(testAppJsonPath, []byte(sampleAppJSON01), os.FileMode(0644))
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		defer func() {
+			var sampleApp01 Application
+
+			err = json.Unmarshal([]byte(sampleAppJSON01), &sampleApp01)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			err = os.Remove(testAppJsonPath)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			namespacePath := filepath.Join(cwd, sampleApp01.NameSpace)
+			err = os.RemoveAll(namespacePath)
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}()
+
+		err = Run(testAppJsonPath)
+		assert.Nil(t, err)
+	})
+}
+
 func TestGenerator(t *testing.T) {
 	var sampleApp01 Application
 
 	err := json.Unmarshal([]byte(sampleAppJSON01), &sampleApp01)
-	logger.Error(err)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	var sampleApp02 Application
 
 	err = json.Unmarshal([]byte(sampleAppJSON02), &sampleApp02)
-	logger.Error(err)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	var sampleApp03 Application
 
 	err = json.Unmarshal([]byte(sampleAppJSON03), &sampleApp03)
-	logger.Error(err)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	wantConfigmapResult := `apiVersion: v1
 kind: ConfigMap
@@ -200,25 +286,31 @@ spec:
         - secretRef:
             name: webSvc1
         readinessProbe:
-          failureThreshold: 3
           httpGet:
-            path: /ready
+            path: /healthz
             port: 80
-            scheme: HTTP
+            httpHeaders:
+            - name: Custom-Header-1
+              value: Awesome1
+            - name: Custom-Header-2
+              value: Awesome2
           initialDelaySeconds: 20
           periodSeconds: 10
-          successThreshold: 1
           timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
         livenessProbe:
-          failureThreshold: 3
           httpGet:
-            path: /ready
+            path: /healthz
             port: 80
-            scheme: HTTP
+            httpHeaders:
+            - name: Custom-Header-3
+              value: Awesome3
           initialDelaySeconds: 20
           periodSeconds: 10
-          successThreshold: 1
           timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
         resources:
           requests:
             cpu: 100m
@@ -263,26 +355,11 @@ spec:
               - "20"
         ports:
         - containerPort: 80
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /ready
-            port: 80
-            scheme: HTTP
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 10
         livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /ready
-            port: 80
-            scheme: HTTP
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 10
+          exec:
+            command:
+            - cat
+            - /tmp/test
         resources:
           requests:
             cpu: 100m
@@ -316,26 +393,9 @@ spec:
               - "20"
         ports:
         - containerPort: 80
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /ready
-            port: 80
-            scheme: HTTP
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 10
         livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /ready
+          tcpSocket:
             port: 80
-            scheme: HTTP
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 10
         resources:
           requests:
             cpu: 100m
@@ -462,7 +522,9 @@ images:
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
 			r, err := Generator(tt.app, tt.tmpl, tt.testName)
-			logger.Error(err)
+			if err != nil {
+				log.Fatalln(err)
+			}
 			assert.Equal(t, tt.wantResult, string(r))
 		})
 	}
