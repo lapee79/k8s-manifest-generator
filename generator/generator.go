@@ -60,7 +60,7 @@ type Application struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
-	Replicas  *int
+	Replicas  *int `json:"replicas"`
 	AutoScale *struct {
 		MinPodNum int `json:"minPodNum"`
 		MaxPodNum int `json:"maxPodNum"`
