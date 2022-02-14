@@ -41,6 +41,8 @@ jobs:
         uses: github/codeql-action/analyze@v1
 
   build:
+    needs:
+      - analyze
     name: Test Go build and test
     runs-on: ubuntu-latest
     steps:

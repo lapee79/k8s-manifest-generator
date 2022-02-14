@@ -144,29 +144,9 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: "{{.Name}}"
+            {{- if .AzKvSpSecret}}
             nodePublishSecretRef:
               name: {{.AzKvSpSecret}}
+            {{- end}}
       {{- end}}
 `
-
-type HealthCheck struct {
-	InitialDelaySeconds *int `json:"initialDelaySeconds"`
-	PeriodSeconds       *int `json:"periodSeconds"`
-	TimeoutSeconds      *int `json:"timeoutSeconds"`
-	SuccessThreshold    *int `json:"successThreshold"`
-	FailureThreshold    *int `json:"failureThreshold"`
-	Exec                *struct {
-		Command []string `json:"command"`
-	} `json:"exec"`
-	HttpGet *struct {
-		Path       string `json:"path"`
-		Port       int    `json:"port"`
-		HttpHeader *[]struct {
-			Name  string `json:"name"`
-			Value string `json:"value"`
-		} `json:"httpHeader"`
-	} `json:"httpGet"`
-	TcpSocket *struct {
-		Port int `json:"port"`
-	} `json:"tcpSocket"`
-}
