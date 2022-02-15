@@ -16,6 +16,10 @@ spec:
     {{- end}}
   parameters:
     usePodIdentity: "false"
+    {{- if .AzKvUserAssignedIdentityID}}
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: "{{.AzKvUserAssignedIdentityID}}"
+    {{- end}}
     keyvaultName: "{{.AzKV}}"
     objects: |
       array:

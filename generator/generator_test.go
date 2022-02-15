@@ -154,6 +154,52 @@ var sampleAppJSON03 = `
 }
 `
 
+var sampleAppJSON04 = `
+{
+  "Name": "webSvc1",
+  "NameSpace": "test",
+  "ContainerPort": 80,
+  "ServicePort": 80,
+  "CommonLabels": [
+    {"Key": "app.kubernetes.io/instance", "Value": "webSvc1"},
+    {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
+  ],
+  "CommonAnnotations": [
+    {"Key": "commitAuther", "Value": "lapee79"},
+    {"Key": "buildId", "Value": "6776f266"}
+  ],
+  "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
+  "ImageTag": "6776f266",
+  "Config": [
+    {"Key": "ConfKey1", "Value": "ConfVal1"},
+    {"Key": "ConfKey2", "Value": "ConfVal2"}
+  ],
+  "Secret": [
+    {"Key": "SecKey1", "Value": "SecVal1"},
+    {"Key": "SecKey2", "Value": "SecVal2"}
+  ],
+  "Resources": {
+    "Requests": {
+      "CPU": "100m",
+      "Memory": "128Mi"
+    },
+    "Limits": {
+      "CPU": "200m",
+      "Memory": "256Mi"
+    }
+  },
+  "AutoScale": {
+    "MinPodNum": 1,
+    "MaxPodNum": 10,
+    "CpuUsage": 40,
+    "MemUsage": 90
+  },
+  "AzKV":  "az-kv-01",
+  "AzTid": "1234-12345678-00000000",
+  "AzKvUserAssignedIdentityID": "12345678-1234-1234-1234-000000000000"
+}
+`
+
 func TestRun(t *testing.T) {
 	t.Run("Run", func(t *testing.T) {
 		cwd, err := os.Getwd()
@@ -214,6 +260,13 @@ func TestGenerator(t *testing.T) {
 		log.Fatalln(err)
 	}
 
+	var sampleApp04 Application
+
+	err = json.Unmarshal([]byte(sampleAppJSON04), &sampleApp04)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	wantConfigmapResult := `apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -222,7 +275,7 @@ data:
   ConfKey1: ConfVal1
   ConfKey2: ConfVal2
 `
-	wantSecretproviderclassResult := `apiVersion: secrets-store.csi.x-k8s.io/v1
+	wantSecretproviderclassAzKvSpSecretResult := `apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
   name: webSvc1
@@ -238,6 +291,35 @@ spec:
       key: SecKey2
   parameters:
     usePodIdentity: "false"
+    keyvaultName: "az-kv-01"
+    objects: |
+      array:
+        - |
+          objectName: SecVal1
+          objectType: secret
+        - |
+          objectName: SecVal2
+          objectType: secret
+    tenantId: "1234-12345678-00000000"
+`
+	wantSecretproviderclassAzKvUserAssignedIdentityIDResult := `apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: webSvc1
+spec:
+  provider: azure
+  secretObjects:
+  - secretName: webSvc1
+    type: Opaque
+    data:
+    - objectName: SecVal1
+      key: SecKey1
+    - objectName: SecVal2
+      key: SecKey2
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: "12345678-1234-1234-1234-000000000000"
     keyvaultName: "az-kv-01"
     objects: |
       array:
@@ -508,7 +590,8 @@ images:
 		wantResult string
 	}{
 		{testName: "GenerateConfigMap", app: sampleApp01, tmpl: templates.ConfigMap, wantResult: wantConfigmapResult},
-		{testName: "GenerateSecretProviderClass", app: sampleApp01, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassResult},
+		{testName: "GenerateSecretProviderClassAzKvSpSecret", app: sampleApp01, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassAzKvSpSecretResult},
+		{testName: "GenerateSecretProviderClassAzKvUserAssignedIdentityID", app: sampleApp04, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassAzKvUserAssignedIdentityIDResult},
 		{testName: "GenerateDeployment01", app: sampleApp01, tmpl: templates.Deployment, wantResult: wantDeploymentResult01},
 		{testName: "GenerateDeployment02", app: sampleApp02, tmpl: templates.Deployment, wantResult: wantDeploymentResult02},
 		{testName: "GenerateDeployment03", app: sampleApp03, tmpl: templates.Deployment, wantResult: wantDeploymentResult03},

@@ -67,9 +67,10 @@ type Application struct {
 		CpuUsage  int `json:"cpuUsage"`
 		MemUsage  int `json:"memUsage,omitempty"`
 	} `json:"autoScale"`
-	AzKV         *string `json:"AzKV,omitempty"`
-	AzTid        *string `json:"AzTid,omitempty"`
-	AzKvSpSecret *string `json:"azKvSpSecret,omitempty"`
+	AzKV                       *string `json:"azKV,omitempty"`
+	AzTid                      *string `json:"azTid,omitempty"`
+	AzKvSpSecret               *string `json:"azKvSpSecret,omitempty"`
+	AzKvUserAssignedIdentityID *string `json:"azKvUserAssignedIdentityID,omitempty"`
 }
 
 // Run generates the Kubernetes YAML manifests.
