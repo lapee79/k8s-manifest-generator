@@ -13,7 +13,9 @@ commonAnnotations:
 resources:
 - service.yaml
 - deployment.yaml
+{{- if .AutoScale}}
 - hpa.yaml
+{{- end}}
 {{- if .Config}}
 - configmap.yaml
 {{- end}}
