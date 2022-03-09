@@ -272,8 +272,8 @@ kind: ConfigMap
 metadata:
   name: webSvc1
 data:
-  ConfKey1: ConfVal1
-  ConfKey2: ConfVal2
+  ConfKey1: "ConfVal1"
+  ConfKey2: "ConfVal2"
 `
 	wantSecretproviderclassAzKvSpSecretResult := `apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
@@ -549,8 +549,8 @@ spec:
 	wantKustomizationResult01 := `apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 commonLabels:
-  app.kubernetes.io/instance: webSvc1
-  app.kubernetes.io/environment: dev2
+  app.kubernetes.io/instance: "webSvc1"
+  app.kubernetes.io/environment: "dev2"
 commonAnnotations:
   commitAuther: "lapee79"
   buildId: "6776f266"
@@ -568,8 +568,8 @@ images:
 	wantKustomizationResult02 := `apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 commonLabels:
-  app.kubernetes.io/instance: webSvc1
-  app.kubernetes.io/environment: dev2
+  app.kubernetes.io/instance: "webSvc1"
+  app.kubernetes.io/environment: "dev2"
 commonAnnotations:
   commitAuther: "lapee79"
   buildId: "6776f266"

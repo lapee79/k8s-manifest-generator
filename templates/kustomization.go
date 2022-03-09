@@ -4,7 +4,7 @@ var Kustomization = `apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 commonLabels:
 {{- range $value := .CommonLabels}}
-  {{$value.Key}}: {{$value.Value}}
+  {{$value.Key}}: "{{$value.Value}}"
 {{- end}}
 commonAnnotations:
 {{- range $value := .CommonAnnotations}}
