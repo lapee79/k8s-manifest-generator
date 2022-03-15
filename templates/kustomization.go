@@ -24,6 +24,6 @@ resources:
 {{- end}}
 images:
 - name: private-image
-  newName: {{.ImageUrl}}
-  newTag: {{.ImageTag}}
+  newName: "{{.ImageUrl}}"
+  newTag: "{{.ImageTag}}"
 `

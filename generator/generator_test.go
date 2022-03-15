@@ -562,8 +562,8 @@ resources:
 - secretproviderclass.yaml
 images:
 - name: private-image
-  newName: artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs
-  newTag: 6776f266
+  newName: "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs"
+  newTag: "6776f266"
 `
 	wantKustomizationResult02 := `apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -579,8 +579,8 @@ resources:
 - hpa.yaml
 images:
 - name: private-image
-  newName: artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs
-  newTag: 6776f266
+  newName: "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs"
+  newTag: "6776f266"
 `
 
 	var tests = []struct {
