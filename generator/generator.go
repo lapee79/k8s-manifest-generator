@@ -2,13 +2,19 @@ package generator
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
 	"github.com/lapee79/k8s-manifest-generator/templates"
-	"io/ioutil"
 	"log"
 	"os"
 	"sync"
 	"text/template"
+)
+
+var (
+	//go:embed templates/*
+	files      embed.FS
+	templatesA map[string]*template.Template
 )
 
 type Resource struct {
@@ -46,6 +52,7 @@ type HealthCheck struct {
 type Application struct {
 	Name              string        `json:"name"`
 	NameSpace         string        `json:"nameSpace"`
+	Kind              string        `json:"kind"`
 	CommonLabels      *[]KeyValPair `json:"commonLabels"`
 	CommonAnnotations *[]KeyValPair `json:"commonAnnotations"`
 	ImageUrl          string        `json:"imageUrl"`
@@ -56,7 +63,11 @@ type Application struct {
 	Secret            *[]KeyValPair `json:"secret,omitempty"`
 	ReadinessProbe    *HealthCheck  `json:"readinessProbe"`
 	LivenessProbe     *HealthCheck  `json:"livenessProbe"`
-	Resources         struct {
+	JobSpec           *struct {
+		Schedule      string `json:"schedule"`
+		RestartPolicy string `json:"restartPolicy"`
+	} `json:"jobSpec"`
+	Resources struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
@@ -80,7 +91,7 @@ func Run(path string) error {
 	tmpls = make(map[string]string)
 
 	log.Printf("Reading \"%s\"...\n", path)
-	appData, err := ioutil.ReadFile(path)
+	appData, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -113,8 +124,12 @@ func Run(path string) error {
 	}
 
 	tmpls["kustomization.yaml"] = templates.Kustomization
-	tmpls["deployment.yaml"] = templates.Deployment
-	tmpls["service.yaml"] = templates.Service
+	if app.Kind == "Deployment" {
+		tmpls["deployment.yaml"] = templates.Deployment
+		tmpls["service.yaml"] = templates.Service
+	} else if app.Kind == "CronJob" {
+		tmpls["cronjob.yaml"] = templates.CronJob
+	}
 	if app.AutoScale != nil && app.Replicas == nil {
 		tmpls["hpa.yaml"] = templates.Hpa
 	}
@@ -140,7 +155,7 @@ func Run(path string) error {
 				c <- err
 			}
 
-			err = ioutil.WriteFile(y, result, os.FileMode(0644))
+			err = os.WriteFile(y, result, os.FileMode(0644))
 			if err != nil {
 				c <- err
 			}

@@ -11,8 +11,13 @@ commonAnnotations:
   {{$value.Key}}: "{{$value.Value}}"
 {{- end}}
 resources:
+{{- if eq .Kind "Deployment"}}
 - service.yaml
 - deployment.yaml
+{{- end}}
+{{- if eq .Kind "CronJob"}}
+- cronjob.yaml
+{{- end}}
 {{- if .AutoScale}}
 - hpa.yaml
 {{- end}}

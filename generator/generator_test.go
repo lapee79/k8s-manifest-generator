@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/lapee79/k8s-manifest-generator/templates"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -208,7 +207,7 @@ func TestRun(t *testing.T) {
 		}
 		testAppJson := "testAppJson.json"
 		testAppJsonPath := filepath.Join(cwd, testAppJson)
-		err = ioutil.WriteFile(testAppJsonPath, []byte(sampleAppJSON01), os.FileMode(0644))
+		err = os.WriteFile(testAppJsonPath, []byte(sampleAppJSON01), os.FileMode(0644))
 		if err != nil {
 			log.Fatalln(err)
 		}
