@@ -1,6 +1,4 @@
-package templates
-
-var Deployment = `apiVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{.Name}}
@@ -19,4 +17,3 @@ spec:
         app.kubernetes.io/name: {{.Name}}
     spec:
       {{ template "pod-spec" . | indent 6 }}
-`

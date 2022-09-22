@@ -10,5 +10,5 @@ spec:
     spec:
       template:
         spec:
-          {{ template "PodSpec" . | indent 10 }}
+          {{ template "pod-spec" . | indent 10 }}
           restartPolicy: {{.JobSpec.RestartPolicy}}
