@@ -1,0 +1,40 @@
+{
+  "Name": "webSvc1",
+  "NameSpace": "test",
+  "Kind": "CronJob",
+  "CommonLabels": [
+    {"Key": "app.kubernetes.io/instance", "Value": "webSvc1"},
+    {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
+  ],
+  "CommonAnnotations": [
+    {"Key": "commitAuther", "Value": "lapee79"},
+    {"Key": "buildId", "Value": "6776f266"}
+  ],
+  "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
+  "ImageTag": "6776f266",
+  "CronJobSpec": {
+    "Schedule": "5 4 * * *",
+    "RestartPolicy": "OnFailure"
+  },
+  "Config": [
+    {"Key": "ConfKey1", "Value": "ConfVal1"},
+    {"Key": "ConfKey2", "Value": "ConfVal2"}
+  ],
+  "Secret": [
+    {"Key": "SecKey1", "Value": "SecVal1"},
+    {"Key": "SecKey2", "Value": "SecVal2"}
+  ],
+  "Resources": {
+    "Requests": {
+      "CPU": "100m",
+      "Memory": "128Mi"
+    },
+    "Limits": {
+      "CPU": "200m",
+      "Memory": "256Mi"
+    }
+  },
+  "AzKV":  "az-kv-01",
+  "AzTid": "1234-12345678-00000000",
+  "AzKvSpSecret": "secrets-store-creds"
+}

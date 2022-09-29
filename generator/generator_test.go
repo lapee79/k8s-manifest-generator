@@ -238,9 +238,14 @@ func TestRun(t *testing.T) {
 }
 
 func TestGenerator(t *testing.T) {
-	var sampleApp01 Application
+	webDeploymentWithAzkvJSON, err := os.ReadFile("./test/data/input-json/web-deployment-with-azkv.json")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	err := json.Unmarshal([]byte(sampleAppJSON01), &sampleApp01)
+	var webDeploymentWithAzkv Application
+
+	err = json.Unmarshal([]byte(webDeploymentWithAzkvJSON), &webDeploymentWithAzkv)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -588,16 +593,16 @@ images:
 		tmpl       string
 		wantResult string
 	}{
-		{testName: "GenerateConfigMap", app: sampleApp01, tmpl: templates.ConfigMap, wantResult: wantConfigmapResult},
-		{testName: "GenerateSecretProviderClassAzKvSpSecret", app: sampleApp01, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassAzKvSpSecretResult},
+		{testName: "GenerateConfigMap", app: webDeploymentWithAzkv, tmpl: templates.ConfigMap, wantResult: wantConfigmapResult},
+		{testName: "GenerateSecretProviderClassAzKvSpSecret", app: webDeploymentWithAzkv, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassAzKvSpSecretResult},
 		{testName: "GenerateSecretProviderClassAzKvUserAssignedIdentityID", app: sampleApp04, tmpl: templates.SecretProviderClass, wantResult: wantSecretproviderclassAzKvUserAssignedIdentityIDResult},
-		{testName: "GenerateDeployment01", app: sampleApp01, tmpl: templates.Deployment, wantResult: wantDeploymentResult01},
+		{testName: "GenerateDeployment01", app: webDeploymentWithAzkv, tmpl: templates.Deployment, wantResult: wantDeploymentResult01},
 		{testName: "GenerateDeployment02", app: sampleApp02, tmpl: templates.Deployment, wantResult: wantDeploymentResult02},
 		{testName: "GenerateDeployment03", app: sampleApp03, tmpl: templates.Deployment, wantResult: wantDeploymentResult03},
-		{testName: "GenerateService", app: sampleApp01, tmpl: templates.Service, wantResult: wantServiceResult},
-		{testName: "GenerateHPA01", app: sampleApp01, tmpl: templates.Hpa, wantResult: wantHpaResult01},
+		{testName: "GenerateService", app: webDeploymentWithAzkv, tmpl: templates.Service, wantResult: wantServiceResult},
+		{testName: "GenerateHPA01", app: webDeploymentWithAzkv, tmpl: templates.Hpa, wantResult: wantHpaResult01},
 		{testName: "GenerateHPA02", app: sampleApp02, tmpl: templates.Hpa, wantResult: wantHpaResult02},
-		{testName: "GenerateKustomization01", app: sampleApp01, tmpl: templates.Kustomization, wantResult: wantKustomizationResult01},
+		{testName: "GenerateKustomization01", app: webDeploymentWithAzkv, tmpl: templates.Kustomization, wantResult: wantKustomizationResult01},
 		{testName: "GenerateKustomization02", app: sampleApp02, tmpl: templates.Kustomization, wantResult: wantKustomizationResult02},
 	}
 

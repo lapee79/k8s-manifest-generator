@@ -1,6 +1,7 @@
 {
   "Name": "webSvc1",
   "NameSpace": "test",
+  "Kind": "Deployment",
   "ContainerPort": 80,
   "ServicePort": 80,
   "CommonLabels": [

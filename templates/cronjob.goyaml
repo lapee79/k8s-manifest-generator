@@ -5,10 +5,10 @@ metadata:
   labels:
     app.kubernetes.io/name: {{.Name}}
 spec:
-  schedule: "{{.JobSpec.Schedule}}"
+  schedule: "{{.cronJobSpec.Schedule}}"
   jobTemplate:
     spec:
       template:
         spec:
           {{ template "pod-spec" . | indent 10 }}
-          restartPolicy: {{.JobSpec.RestartPolicy}}
+          restartPolicy: {{.cronJobSpec.RestartPolicy}}

@@ -57,17 +57,17 @@ type Application struct {
 	CommonAnnotations *[]KeyValPair `json:"commonAnnotations"`
 	ImageUrl          string        `json:"imageUrl"`
 	ImageTag          string        `json:"imageTag"`
-	ContainerPort     int           `json:"containerPort"`
-	ServicePort       int           `json:"servicePort"`
-	Config            *[]KeyValPair `json:"config,omitempty"`
-	Secret            *[]KeyValPair `json:"secret,omitempty"`
-	ReadinessProbe    *HealthCheck  `json:"readinessProbe"`
-	LivenessProbe     *HealthCheck  `json:"livenessProbe"`
-	JobSpec           *struct {
+	CronJobSpec       *struct {
 		Schedule      string `json:"schedule"`
 		RestartPolicy string `json:"restartPolicy"`
-	} `json:"jobSpec"`
-	Resources struct {
+	} `json:"cronJobSpec"`
+	ContainerPort  *int          `json:"containerPort"`
+	ServicePort    *int          `json:"servicePort"`
+	Config         *[]KeyValPair `json:"config,omitempty"`
+	Secret         *[]KeyValPair `json:"secret,omitempty"`
+	ReadinessProbe *HealthCheck  `json:"readinessProbe"`
+	LivenessProbe  *HealthCheck  `json:"livenessProbe"`
+	Resources      struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
@@ -124,14 +124,15 @@ func Run(path string) error {
 	}
 
 	tmpls["kustomization.yaml"] = templates.Kustomization
-	if app.Kind == "Deployment" {
+	switch app.Kind {
+	case "Deployment":
 		tmpls["deployment.yaml"] = templates.Deployment
 		tmpls["service.yaml"] = templates.Service
-	} else if app.Kind == "CronJob" {
+		if app.AutoScale != nil && app.Replicas == nil {
+			tmpls["hpa.yaml"] = templates.Hpa
+		}
+	case "CronJob":
 		tmpls["cronjob.yaml"] = templates.CronJob
-	}
-	if app.AutoScale != nil && app.Replicas == nil {
-		tmpls["hpa.yaml"] = templates.Hpa
 	}
 	if app.Config != nil {
 		tmpls["configmap.yaml"] = templates.ConfigMap

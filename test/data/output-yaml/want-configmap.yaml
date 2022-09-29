@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webSvc1
+data:
+  ConfKey1: "ConfVal1"
+  ConfKey2: "ConfVal2"
