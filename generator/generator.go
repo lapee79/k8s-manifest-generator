@@ -2,19 +2,12 @@ package generator
 
 import (
 	"bytes"
-	"embed"
 	"encoding/json"
 	"github.com/lapee79/k8s-manifest-generator/templates"
 	"log"
 	"os"
 	"sync"
 	"text/template"
-)
-
-var (
-	//go:embed templates/*
-	files      embed.FS
-	templatesA map[string]*template.Template
 )
 
 type Resource struct {
@@ -123,22 +116,23 @@ func Run(path string) error {
 		return err
 	}
 
-	tmpls["kustomization.yaml"] = templates.Kustomization
+	tmpls["kustomization.yaml"] = string(templates.KustomizationYAML)
 	switch app.Kind {
 	case "Deployment":
-		tmpls["deployment.yaml"] = templates.Deployment
-		tmpls["service.yaml"] = templates.Service
+		tmpls["deployment.yaml"] = string(templates.DeploymentYAML)
+		tmpls["service.yaml"] = string(templates.ServiceYAML)
 		if app.AutoScale != nil && app.Replicas == nil {
-			tmpls["hpa.yaml"] = templates.Hpa
+			tmpls["hpa.yaml"] = string(templates.HpaYAML)
 		}
 	case "CronJob":
-		tmpls["cronjob.yaml"] = templates.CronJob
+		tmpls["cronjob.yaml"] = string(templates.CronjobYAML)
 	}
+
 	if app.Config != nil {
-		tmpls["configmap.yaml"] = templates.ConfigMap
+		tmpls["configmap.yaml"] = string(templates.ConfigmapYAML)
 	}
 	if app.Secret != nil {
-		tmpls["secretproviderclass.yaml"] = templates.SecretProviderClass
+		tmpls["secretproviderclass.yaml"] = string(templates.SecretProviderClassYAML)
 	}
 
 	var wg sync.WaitGroup
