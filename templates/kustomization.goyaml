@@ -1,6 +1,4 @@
-package templates
-
-var Kustomization = `apiVersion: kustomize.config.k8s.io/v1beta1
+apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 commonLabels:
 {{- range $value := .CommonLabels}}
@@ -11,19 +9,23 @@ commonAnnotations:
   {{$value.Key}}: "{{$value.Value}}"
 {{- end}}
 resources:
-- service.yaml
-- deployment.yaml
+{{- if eq .Kind "Deployment"}}
+  - service.yaml
+  - deployment.yaml
+{{- end}}
+{{- if eq .Kind "CronJob"}}
+  - cronjob.yaml
+{{- end}}
 {{- if .AutoScale}}
-- hpa.yaml
+  - hpa.yaml
 {{- end}}
 {{- if .Config}}
-- configmap.yaml
+  - configmap.yaml
 {{- end}}
 {{- if .Secret}}
-- secretproviderclass.yaml
+  - secretproviderclass.yaml
 {{- end}}
 images:
-- name: private-image
-  newName: "{{.ImageUrl}}"
-  newTag: "{{.ImageTag}}"
-`
+  - name: private-image
+    newName: "{{.ImageUrl}}"
+    newTag: "{{.ImageTag}}"

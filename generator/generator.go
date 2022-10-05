@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/lapee79/k8s-manifest-generator/templates"
-	"io/ioutil"
 	"log"
 	"os"
 	"sync"
@@ -46,17 +45,22 @@ type HealthCheck struct {
 type Application struct {
 	Name              string        `json:"name"`
 	NameSpace         string        `json:"nameSpace"`
+	Kind              string        `json:"kind"`
 	CommonLabels      *[]KeyValPair `json:"commonLabels"`
 	CommonAnnotations *[]KeyValPair `json:"commonAnnotations"`
 	ImageUrl          string        `json:"imageUrl"`
 	ImageTag          string        `json:"imageTag"`
-	ContainerPort     int           `json:"containerPort"`
-	ServicePort       int           `json:"servicePort"`
-	Config            *[]KeyValPair `json:"config,omitempty"`
-	Secret            *[]KeyValPair `json:"secret,omitempty"`
-	ReadinessProbe    *HealthCheck  `json:"readinessProbe"`
-	LivenessProbe     *HealthCheck  `json:"livenessProbe"`
-	Resources         struct {
+	CronJobSpec       *struct {
+		Schedule      string `json:"schedule"`
+		RestartPolicy string `json:"restartPolicy"`
+	} `json:"cronJobSpec"`
+	ContainerPort  *int          `json:"containerPort"`
+	ServicePort    *int          `json:"servicePort"`
+	Config         *[]KeyValPair `json:"config,omitempty"`
+	Secret         *[]KeyValPair `json:"secret,omitempty"`
+	ReadinessProbe *HealthCheck  `json:"readinessProbe"`
+	LivenessProbe  *HealthCheck  `json:"livenessProbe"`
+	Resources      struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
@@ -80,7 +84,7 @@ func Run(path string) error {
 	tmpls = make(map[string]string)
 
 	log.Printf("Reading \"%s\"...\n", path)
-	appData, err := ioutil.ReadFile(path)
+	appData, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -112,17 +116,23 @@ func Run(path string) error {
 		return err
 	}
 
-	tmpls["kustomization.yaml"] = templates.Kustomization
-	tmpls["deployment.yaml"] = templates.Deployment
-	tmpls["service.yaml"] = templates.Service
-	if app.AutoScale != nil && app.Replicas == nil {
-		tmpls["hpa.yaml"] = templates.Hpa
+	tmpls["kustomization.yaml"] = string(templates.KustomizationYAML)
+	switch app.Kind {
+	case "Deployment":
+		tmpls["deployment.yaml"] = string(templates.DeploymentYAML)
+		tmpls["service.yaml"] = string(templates.ServiceYAML)
+		if app.AutoScale != nil && app.Replicas == nil {
+			tmpls["hpa.yaml"] = string(templates.HpaYAML)
+		}
+	case "CronJob":
+		tmpls["cronjob.yaml"] = string(templates.CronjobYAML)
 	}
+
 	if app.Config != nil {
-		tmpls["configmap.yaml"] = templates.ConfigMap
+		tmpls["configmap.yaml"] = string(templates.ConfigmapYAML)
 	}
 	if app.Secret != nil {
-		tmpls["secretproviderclass.yaml"] = templates.SecretProviderClass
+		tmpls["secretproviderclass.yaml"] = string(templates.SecretProviderClassYAML)
 	}
 
 	var wg sync.WaitGroup
@@ -140,7 +150,7 @@ func Run(path string) error {
 				c <- err
 			}
 
-			err = ioutil.WriteFile(y, result, os.FileMode(0644))
+			err = os.WriteFile(y, result, os.FileMode(0644))
 			if err != nil {
 				c <- err
 			}
