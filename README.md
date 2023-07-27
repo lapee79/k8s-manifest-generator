@@ -7,7 +7,7 @@ These are the sample application spec JSON files.
 
 **Web application(HPA)**
 
-```json
+```
 {
   "Name": "webSvc1",  // service name on Kubernetes(allow lower cases and hyphen(-) and numbers only)
   "NameSpace": "test",  // namespace on Kubernetes(allow lower cases and hyphen(-) and numbers only)
@@ -72,7 +72,7 @@ These are the sample application spec JSON files.
 
 **Web application(VPA)**
 
-```json
+```
 {
   "Name": "webSvc1",  // service name on Kubernetes(allow lower cases and hyphen(-) and numbers only)
   "NameSpace": "test",  // namespace on Kubernetes(allow lower cases and hyphen(-) and numbers only)
@@ -133,7 +133,7 @@ These are the sample application spec JSON files.
 
 **Schedule Job**
 
-```json
+```
 {
   "Name": "aspcoretest",  // service name on Kubernetes(allow lower cases and hyphen(-) and numbers only)
   "NameSpace": "nowcom",  // namespace on Kubernetes(allow lower cases and hyphen(-) and numbers only)
