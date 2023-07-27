@@ -14,25 +14,31 @@
   ],
   "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
   "ImageTag": "6776f266",
-  "LivenessProbe": {
-    "Exec": {
-      "Command": [
-        "cat",
-        "/tmp/test"
-      ]
-    }
-  },
+  "Config": [
+    {"Key": "ConfKey1", "Value": "ConfVal1"},
+    {"Key": "ConfKey2", "Value": "ConfVal2"}
+  ],
+  "Secret": [
+    {"Key": "SecKey1", "Value": "SecVal1"},
+    {"Key": "SecKey2", "Value": "SecVal2"}
+  ],
   "Resources": {
     "Requests": {
       "CPU": "100m",
       "Memory": "128Mi"
+    },
+    "Limits": {
+      "CPU": "200m",
+      "Memory": "256Mi"
     }
   },
+  "Replicas": 3,
   "AutoScale": {
-    "Hpa": {
-      "MinPodNum": 1,
-      "MaxPodNum": 10,
-      "CpuUsage": 40
+    "Vpa": {
+      "UpdateMode": "Initial"
     }
-  }
+  },
+  "AzKV":  "az-kv-01",
+  "AzTid": "1234-12345678-00000000",
+  "AzKvUserAssignedIdentityID": "12345678-1234-1234-1234-000000000000"
 }

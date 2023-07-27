@@ -16,8 +16,11 @@ resources:
 {{- if eq .Kind "CronJob"}}
   - cronjob.yaml
 {{- end}}
-{{- if .AutoScale}}
+{{- if .AutoScale.Hpa}}
   - hpa.yaml
+{{- end}}
+{{- if .AutoScale.Vpa}}
+  - vpa.yaml
 {{- end}}
 {{- if .Config}}
   - configmap.yaml

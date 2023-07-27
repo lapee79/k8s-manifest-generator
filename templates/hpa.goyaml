@@ -9,20 +9,20 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{.Name}}
-  minReplicas: {{.AutoScale.MinPodNum}}
-  maxReplicas: {{.AutoScale.MaxPodNum}}
+  minReplicas: {{.AutoScale.Hpa.MinPodNum}}
+  maxReplicas: {{.AutoScale.Hpa.MaxPodNum}}
   metrics:
-  {{- if .AutoScale.MemUsage}}
+  {{- if .AutoScale.Hpa.MemUsage}}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{.AutoScale.MemUsage}}
+          averageUtilization: {{.AutoScale.Hpa.MemUsage}}
   {{- end}}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{.AutoScale.CpuUsage}}
+          averageUtilization: {{.AutoScale.Hpa.CpuUsage}}
