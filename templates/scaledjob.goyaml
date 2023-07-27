@@ -1,0 +1,49 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{.Name}}
+  labels:
+    app.kubernetes.io/name: {{.Name}}
+spec:
+  pollingInterval: 10
+  maxReplicaCount: 5
+  successfulJobsHistoryLimit: 30
+  failedJobsHistoryLimit: 30
+  scalingStrategy:
+    strategy: "accurate"
+    customScalingQueueLengthDeduction: 0
+    customScalingRunningJobPercentage: "0"
+  jobTargetRef:
+    parallelism: 1
+    completions: 1
+    activeDeadlineSeconds: 1200
+    backoffLimit: 6
+    template:
+      spec:
+        containers:
+        - name: app
+          image: private-image
+          envFrom:
+          - configMapRef:
+              name: mediaservices-video-processor-batch
+          - secretRef:
+              name: mediaservices-video-processor-batch
+              optional: true
+          resources:
+            requests:
+              cpu: {{.Resources.Requests.CPU}}
+              memory: {{.Resources.Requests.Memory}}
+          {{- if .Resources.Limits}}
+            limits:
+              cpu: {{.Resources.Limits.CPU}}
+              memory: {{.Resources.Limits.Memory}}
+          {{- end}}
+        restartPolicy: {{.CronJobSpec.RestartPolicy}}
+  triggers:
+  - type: azure-queue
+    metadata:
+      queueName: media-batch-video
+      queueLength: "1"
+      connection: AzureWebJobsStorage
+    authenticationRef:
+       name: mediaservices-video-processor-batch

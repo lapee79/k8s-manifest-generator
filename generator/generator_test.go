@@ -94,6 +94,12 @@ func TestGenerator(t *testing.T) {
 			tmpl:       "templates/cronjob.goyaml",
 			wantResult: "test/data/output-yaml/want-cronjob-without-secret.yaml",
 		},
+		{
+			testName:   "GenerateVpa",
+			appFile:    "test/data/input-json/web-deployment-with-vpa.json",
+			tmpl:       "templates/vpa.goyaml",
+			wantResult: "test/data/output-yaml/want-vpa.yaml",
+		},
 	}
 
 	for _, tt := range tests {

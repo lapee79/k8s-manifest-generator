@@ -17,6 +17,9 @@ var (
 	//go:embed hpa.goyaml
 	HpaYAML []byte
 
+	//go:embed vpa.goyaml
+	VpaYAML []byte
+
 	//go:embed kustomization.goyaml
 	KustomizationYAML []byte
 

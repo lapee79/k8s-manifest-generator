@@ -62,10 +62,12 @@
     }
   },
   "AutoScale": {
-    "MinPodNum": 1,
-    "MaxPodNum": 10,
-    "CpuUsage": 40,
-    "MemUsage": 90
+    "Hpa": {
+      "MinPodNum": 1,
+      "MaxPodNum": 10,
+      "CpuUsage": 40,
+      "MemUsage": 90
+    }
   },
   "AzKV":  "az-kv-01",
   "AzTid": "1234-12345678-00000000",

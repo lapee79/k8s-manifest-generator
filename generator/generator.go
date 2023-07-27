@@ -42,6 +42,18 @@ type HealthCheck struct {
 	} `json:"tcpSocket"`
 }
 
+type Scaler struct {
+	Hpa *struct {
+		MinPodNum int `json:"minPodNum"`
+		MaxPodNum int `json:"maxPodNum"`
+		CpuUsage  int `json:"cpuUsage"`
+		MemUsage  int `json:"memUsage,omitempty"`
+	} `json:"hpa"`
+	Vpa *struct {
+		UpdateMode string `json:"updateMode"`
+	} `json:"vpa"`
+}
+
 type Application struct {
 	Name              string        `json:"name"`
 	NameSpace         string        `json:"nameSpace"`
@@ -64,13 +76,8 @@ type Application struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
-	Replicas  *int `json:"replicas"`
-	AutoScale *struct {
-		MinPodNum int `json:"minPodNum"`
-		MaxPodNum int `json:"maxPodNum"`
-		CpuUsage  int `json:"cpuUsage"`
-		MemUsage  int `json:"memUsage,omitempty"`
-	} `json:"autoScale"`
+	Replicas                   *int    `json:"replicas"`
+	AutoScale                  *Scaler `json:"autoScale"`
 	AzKV                       *string `json:"azKV,omitempty"`
 	AzTid                      *string `json:"azTid,omitempty"`
 	AzKvSpSecret               *string `json:"azKvSpSecret,omitempty"`
@@ -121,8 +128,10 @@ func Run(path string) error {
 	case "Deployment":
 		tmpls["deployment.yaml"] = string(templates.DeploymentYAML)
 		tmpls["service.yaml"] = string(templates.ServiceYAML)
-		if app.AutoScale != nil && app.Replicas == nil {
+		if app.AutoScale.Hpa != nil && app.Replicas == nil {
 			tmpls["hpa.yaml"] = string(templates.HpaYAML)
+		} else if app.AutoScale.Vpa != nil && app.Replicas != nil {
+			tmpls["vpa.yaml"] = string(templates.VpaYAML)
 		}
 	case "CronJob":
 		tmpls["cronjob.yaml"] = string(templates.CronjobYAML)
