@@ -120,6 +120,7 @@ These are the sample application spec JSON files.
       "Memory": "1Gi"
     }
   },
+  "Replicas": 3,
   "AutoScale": {    // You can configure the settings for the autoscaler.(It can be omitted.)
     "Vpa": {
       "UpdateMode": "Initial"
