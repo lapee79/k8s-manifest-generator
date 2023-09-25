@@ -7,72 +7,57 @@ This is the sample application spec JSON file.
 
 ```json
 {
-  "Name": "webSvc1",
-  "NameSpace": "test",
-  "ContainerPort": 80,
-  "ServicePort": 80,
+  "Name": "aspcoretest",  // service name on Kubernetes(allow lower cases and hyphen(-) and numbers only)
+  "NameSpace": "nowcom",  // namespace on Kubernetes(allow lower cases and hyphen(-) and numbers only)
+  "Kind": "Deployment",
+  "ContainerPort": 80,  // application port
+  "ServicePort": 80,  // the port to expose
   "CommonLabels": [
-    {"Key": "app.kubernetes.io/instance", "Value": "webSvc1"},
+    {"Key": "app.kubernetes.io/instance", "Value": "aspcoretest"},
     {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
   ],
   "CommonAnnotations": [
-    {"Key": "commitAuther", "Value": "lapee79"},
-    {"Key": "buildId", "Value": "6776f266"}
+    {"Key": "commitAuther", "Value": "AUTHER"},  // Do not change this line.
+    {"Key": "buildId", "Value": "BUILDID"},  // Do not change this line.
+    {"Key": "commitAutherEmail", "Value": "EMAIL"}  // Do not change this line.
   ],
-  "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
-  "ImageTag": "6776f266",
-  "Config": [
-    {"Key": "ConfKey1", "Value": "ConfVal1"},
-    {"Key": "ConfKey2", "Value": "ConfVal2"}
+  "ImageUrl": "IMAGEURL",  // Do not change this line.
+  "ImageTag": "IMAGETAG",  // Do not change this line.
+  "Config": [    // The value of "Key" is used as the name of an environment variable. The value of "Value" should have a actual value to use.
+    {"Key": "ASPNETCORE_ENVIRONMENT", "Value": "dev2"},
+    {"Key": "DOTNET_ENVIRONMENT", "Value": "dev2"}
   ],
-  "Secret": [
-    {"Key": "SecKey1", "Value": "SecVal1"},
-    {"Key": "SecKey2", "Value": "SecVal2"}
+  "Secret": [    // The value of "Key" is used as the name of an environment variable. The value of "Value" has to use the name of a secret on the Azure Key Vault.(It can be omitted.)
+    {"Key": "Book_BlackBookAccounts__0__Password", "Value": "Book-BlackBookAccounts--0--Password"},
+    {"Key": "Book_KBBAccounts__0__ApiKey", "Value": "Book-KBBAccounts--0--ApiKey"}
   ],
   "ReadinessProbe": {
-    "InitialDelaySeconds": 20,
-    "PeriodSeconds": 10,
-    "TimeoutSeconds": 10,
-    "SuccessThreshold": 1,
-    "FailureThreshold": 3,
     "HttpGet": {
-      "Path": "/healthz",
-      "Port": 80,
-      "HttpHeader": [
-        {"Name": "Custom-Header-1", "Value": "Awesome1"},
-        {"Name": "Custom-Header-2", "Value": "Awesome2"}
-      ]
+      "Path": "/",    // Update for Health check URL
+      "Port": 80
     }
   },
   "LivenessProbe": {
-    "InitialDelaySeconds": 20,
-    "PeriodSeconds": 10,
-    "TimeoutSeconds": 10,
-    "SuccessThreshold": 1,
-    "FailureThreshold": 3,
     "HttpGet": {
-      "Path": "/healthz",
-      "Port": 80,
-      "HttpHeader": [
-        {"Name": "Custom-Header-3", "Value": "Awesome3"}
-      ]
+      "Path": "/",    // Update for Health check URL
+      "Port": 80
     }
   },
   "Resources": {
     "Requests": {
-      "CPU": "100m",
-      "Memory": "128Mi"
+      "CPU": "100m",          // "1000m" = "1" CPU
+      "Memory": "128Mi"       // "Mi" = Megabyte, "Gi" = Gigabyte
     },
-    "Limits": {
+    "Limits": {    // Set it not to exceed the limits.(It can be omitted.)
       "CPU": "200m",
       "Memory": "256Mi"
     }
   },
-  "AutoScale": {
+  "AutoScale": {    // You can configure the settings for the autoscaler.(It can be omitted.)
     "MinPodNum": 1,
     "MaxPodNum": 10,
     "CpuUsage": 40,
-    "MemUsage": 90
+    "MemUsage": 90      // (It can be omitted.)
   },
   "AzKV":  "az-kv-01",
   "AzTid": "1234-12345678-00000000",
