@@ -498,7 +498,7 @@ spec:
     port: 80
     targetPort: 80
 `
-	wantHpaResult01 := `apiVersion: autoscaling/v2beta2
+	wantHpaResult01 := `apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   labels:
@@ -525,7 +525,7 @@ spec:
         type: Utilization
         averageUtilization: 40
 `
-	wantHpaResult02 := `apiVersion: autoscaling/v2beta2
+	wantHpaResult02 := `apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   labels:

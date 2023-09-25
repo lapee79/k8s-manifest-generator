@@ -1,6 +1,6 @@
 package templates
 
-var Hpa = `apiVersion: autoscaling/v2beta2
+var Hpa = `apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   labels:
