@@ -1,0 +1,20 @@
+{
+  "Name": "customSvc1",
+  "NameSpace": "test",
+  "Kind": "Custom",
+  "CommonLabels": [
+    {"Key": "app.kubernetes.io/instance", "Value": "customSvc1"},
+    {"Key": "app.kubernetes.io/environment", "Value": "dev2"}
+  ],
+  "CommonAnnotations": [
+    {"Key": "commitAuther", "Value": "lapee79"},
+    {"Key": "buildId", "Value": "6776f266"}
+  ],
+  "ImageUrl": "registry.test.com/docker/testimg",
+  "ImageTag": "6776f266",
+  "FileList": [
+    "deployment.yaml",
+    "configmap.yaml",
+    "secret.yaml"
+  ]
+}

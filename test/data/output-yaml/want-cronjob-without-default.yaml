@@ -8,8 +8,12 @@ spec:
   schedule: "5 4 * * *"
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 6000
+      backoffLimit: 5
       template:
         spec:
+          restartPolicy: OnFailure
+          activeDeadlineSeconds: 600
           containers:
             - name: app
               image: private-image
@@ -24,4 +28,3 @@ spec:
                 limits:
                   cpu: 200m
                   memory: 256Mi
-          restartPolicy: OnFailure

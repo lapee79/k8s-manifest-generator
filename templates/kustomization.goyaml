@@ -9,24 +9,33 @@ commonAnnotations:
   {{$value.Key}}: "{{$value.Value}}"
 {{- end}}
 resources:
-{{- if eq .Kind "Deployment"}}
+{{- if eq .Kind "Custom"}}
+  {{- range $value := .FileList}}
+  - {{$value}}
+  {{- end}}
+{{- else}}
+  {{- if eq .Kind "Deployment"}}
   - service.yaml
   - deployment.yaml
-{{- end}}
-{{- if eq .Kind "CronJob"}}
+  {{- end}}
+  {{- if eq .Kind "CronJob"}}
   - cronjob.yaml
-{{- end}}
-{{- if .AutoScale.Hpa}}
+  {{- end}}
+  {{- if .AutoScale.Hpa}}
   - hpa.yaml
-{{- end}}
-{{- if .AutoScale.Vpa}}
+  {{- end}}
+  {{- if .AutoScale.Vpa}}
   - vpa.yaml
-{{- end}}
-{{- if .Config}}
+  {{- end}}
+  {{- if .Config}}
   - configmap.yaml
-{{- end}}
-{{- if .Secret}}
+  {{- end}}
+  {{- if .Secret}}
   - secretproviderclass.yaml
+  {{- end}}
+  {{- if .Ingress}}
+  - ingress.yaml
+  {{- end}}
 {{- end}}
 images:
   - name: private-image

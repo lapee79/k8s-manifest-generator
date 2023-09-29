@@ -13,7 +13,7 @@ var generateCmd = &cobra.Command{
 	Long: `The generate command generates Kustomize manifests.
 
 Examples:
-  k8s-manifest-generator -f app.json`,
+  k8s-manifest-generator generate -f app.json`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := generator.Run(file)
 		if err != nil {
