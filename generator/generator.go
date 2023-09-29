@@ -54,6 +54,22 @@ type Scaler struct {
 	} `json:"vpa"`
 }
 
+type Ingress struct {
+	IngressAnnotations *[]KeyValPair `json:"ingressAnnotations"`
+	IngressClassName   string        `json:"ingressClassName"`
+	HostName           string        `json:"hostName"`
+	UrlPath            string        `json:"urlPath"`
+	TlsSecretName      *string       `json:"tlsSecretName"`
+}
+
+type CronJobSpec struct {
+	Schedule                string  `json:"schedule"`
+	RestartPolicy           *string `json:"restartPolicy"`
+	ActiveDeadlineSeconds   *int    `json:"activeDeadlineSeconds"`
+	TtlSecondsAfterFinished *int    `json:"ttlSecondsAfterFinished"`
+	BackoffLimit            *int    `json:"backoffLimit"`
+}
+
 type Application struct {
 	Name              string        `json:"name"`
 	NameSpace         string        `json:"nameSpace"`
@@ -62,26 +78,25 @@ type Application struct {
 	CommonAnnotations *[]KeyValPair `json:"commonAnnotations"`
 	ImageUrl          string        `json:"imageUrl"`
 	ImageTag          string        `json:"imageTag"`
-	CronJobSpec       *struct {
-		Schedule      string `json:"schedule"`
-		RestartPolicy string `json:"restartPolicy"`
-	} `json:"cronJobSpec"`
-	ContainerPort  *int          `json:"containerPort"`
-	ServicePort    *int          `json:"servicePort"`
-	Config         *[]KeyValPair `json:"config,omitempty"`
-	Secret         *[]KeyValPair `json:"secret,omitempty"`
-	ReadinessProbe *HealthCheck  `json:"readinessProbe"`
-	LivenessProbe  *HealthCheck  `json:"livenessProbe"`
-	Resources      struct {
+	CronJobSpec       *CronJobSpec  `json:"cronJobSpec"`
+	FileList          *[]string     `json:"fileList"`
+	ContainerPort     *int          `json:"containerPort"`
+	ServicePort       *int          `json:"servicePort"`
+	Config            *[]KeyValPair `json:"config,omitempty"`
+	Secret            *[]KeyValPair `json:"secret,omitempty"`
+	ReadinessProbe    *HealthCheck  `json:"readinessProbe"`
+	LivenessProbe     *HealthCheck  `json:"livenessProbe"`
+	Resources         struct {
 		Requests Resource  `json:"requests"`
 		Limits   *Resource `json:"limits,omitempty"`
 	} `json:"resources"`
-	Replicas                   *int    `json:"replicas"`
-	AutoScale                  *Scaler `json:"autoScale"`
-	AzKV                       *string `json:"azKV,omitempty"`
-	AzTid                      *string `json:"azTid,omitempty"`
-	AzKvSpSecret               *string `json:"azKvSpSecret,omitempty"`
-	AzKvUserAssignedIdentityID *string `json:"azKvUserAssignedIdentityID,omitempty"`
+	Replicas                   *int     `json:"replicas"`
+	AutoScale                  *Scaler  `json:"autoScale"`
+	AzKV                       *string  `json:"azKV,omitempty"`
+	AzTid                      *string  `json:"azTid,omitempty"`
+	AzKvSpSecret               *string  `json:"azKvSpSecret,omitempty"`
+	AzKvUserAssignedIdentityID *string  `json:"azKvUserAssignedIdentityID,omitempty"`
+	Ingress                    *Ingress `json:"ingress"`
 }
 
 // Run generates the Kubernetes YAML manifests.
@@ -102,29 +117,16 @@ func Run(path string) error {
 		return err
 	}
 
-	if _, err = os.Stat(app.NameSpace); os.IsNotExist(err) {
-		err = os.Mkdir(app.NameSpace, os.FileMode(0755))
-		if err != nil {
-			return err
-		}
+	if app.Config != nil {
+		tmpls["configmap.yaml"] = string(templates.ConfigmapYAML)
 	}
-	err = os.Chdir(app.NameSpace)
-	if err != nil {
-		return err
-	}
-	if _, err = os.Stat(app.Name); os.IsNotExist(err) {
-		err = os.Mkdir(app.Name, os.FileMode(0755))
-		if err != nil {
-			return err
-		}
-	}
-	err = os.Chdir(app.Name)
-	if err != nil {
-		return err
+	if app.Secret != nil {
+		tmpls["secretproviderclass.yaml"] = string(templates.SecretProviderClassYAML)
 	}
 
-	tmpls["kustomization.yaml"] = string(templates.KustomizationYAML)
 	switch app.Kind {
+	case "Custom":
+		tmpls["kustomization.yaml"] = string(templates.KustomizationYAML)
 	case "Deployment":
 		tmpls["deployment.yaml"] = string(templates.DeploymentYAML)
 		tmpls["service.yaml"] = string(templates.ServiceYAML)
@@ -133,15 +135,13 @@ func Run(path string) error {
 		} else if app.AutoScale.Vpa != nil && app.Replicas != nil {
 			tmpls["vpa.yaml"] = string(templates.VpaYAML)
 		}
+		if app.Ingress != nil {
+			tmpls["ingress.yaml"] = string(templates.IngressYAML)
+		}
+		tmpls["kustomization.yaml"] = string(templates.KustomizationYAML)
 	case "CronJob":
 		tmpls["cronjob.yaml"] = string(templates.CronjobYAML)
-	}
-
-	if app.Config != nil {
-		tmpls["configmap.yaml"] = string(templates.ConfigmapYAML)
-	}
-	if app.Secret != nil {
-		tmpls["secretproviderclass.yaml"] = string(templates.SecretProviderClassYAML)
+		tmpls["kustomization.yaml"] = string(templates.KustomizationYAML)
 	}
 
 	var wg sync.WaitGroup

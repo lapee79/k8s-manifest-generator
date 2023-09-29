@@ -8,8 +8,14 @@ spec:
   schedule: "{{.CronJobSpec.Schedule}}"
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: {{or .CronJobSpec.TtlSecondsAfterFinished 172800}}
+      {{- if .CronJobSpec.BackoffLimit}}
+      backoffLimit: {{.CronJobSpec.BackoffLimit}}
+      {{- end}}
       template:
         spec:
+          restartPolicy: {{or .CronJobSpec.RestartPolicy "Never"}}
+          activeDeadlineSeconds: {{or .CronJobSpec.ActiveDeadlineSeconds 36000}}
           containers:
             - name: app
               image: private-image
@@ -137,4 +143,3 @@ spec:
                   name: {{.AzKvSpSecret}}
                 {{- end}}
           {{- end}}
-          restartPolicy: {{.CronJobSpec.RestartPolicy}}

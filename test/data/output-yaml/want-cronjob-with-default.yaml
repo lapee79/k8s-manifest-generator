@@ -8,8 +8,11 @@ spec:
   schedule: "5 4 * * *"
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 172800
       template:
         spec:
+          restartPolicy: Never
+          activeDeadlineSeconds: 36000
           containers:
             - name: app
               image: private-image
@@ -39,4 +42,3 @@ spec:
                   secretProviderClass: "webSvc1"
                 nodePublishSecretRef:
                   name: secrets-store-creds
-          restartPolicy: OnFailure

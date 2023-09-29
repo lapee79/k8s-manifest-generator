@@ -28,4 +28,7 @@ var (
 
 	//go:embed service.goyaml
 	ServiceYAML []byte
+
+	//go:embed ingress.goyaml
+	IngressYAML []byte
 )
