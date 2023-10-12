@@ -13,6 +13,7 @@
   "ImageUrl": "artifactory-dev.nowcom.io/docker/nowcom.services.bookingwfs",
   "ImageTag": "6776f266",
   "CronJobSpec": {
+    "TimeZone": "Etc/UTC",
     "Schedule": "5 4 * * *",
     "RestartPolicy": "OnFailure",
     "ActiveDeadlineSeconds": 600,

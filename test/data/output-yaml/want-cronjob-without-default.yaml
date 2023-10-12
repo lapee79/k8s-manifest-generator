@@ -5,6 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: webSvc1
 spec:
+  timeZone: "Etc/UTC"
   schedule: "5 4 * * *"
   jobTemplate:
     spec:
