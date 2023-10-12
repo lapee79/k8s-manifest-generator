@@ -5,6 +5,9 @@ metadata:
   labels:
     app.kubernetes.io/name: {{.Name}}
 spec:
+  {{- if .CronJobSpec.TimeZone}}
+  timeZone: "{{.CronJobSpec.TimeZone}}"
+  {{- end}}
   schedule: "{{.CronJobSpec.Schedule}}"
   jobTemplate:
     spec:
