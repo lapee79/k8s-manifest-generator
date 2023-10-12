@@ -63,6 +63,7 @@ type Ingress struct {
 }
 
 type CronJobSpec struct {
+	TimeZone                string  `json:"timeZone"`
 	Schedule                string  `json:"schedule"`
 	RestartPolicy           *string `json:"restartPolicy"`
 	ActiveDeadlineSeconds   *int    `json:"activeDeadlineSeconds"`
