@@ -15,6 +15,11 @@ type Resource struct {
 	Memory string `json:"Memory"`
 }
 
+type Port struct {
+	ContainerPort int `json:"containerPort"`
+	ServicePort   int `json:"servicePort"`
+}
+
 type KeyValPair struct {
 	Key   string `json:"Key"`
 	Value string `json:"Value"`
@@ -60,10 +65,11 @@ type Ingress struct {
 	HostName           string        `json:"hostName"`
 	UrlPath            string        `json:"urlPath"`
 	TlsSecretName      *string       `json:"tlsSecretName"`
+	WebPort            int           `json:"webPort"`
 }
 
 type CronJobSpec struct {
-	TimeZone                string  `json:"timeZone"`
+	TimeZone                *string `json:"timeZone"`
 	Schedule                string  `json:"schedule"`
 	RestartPolicy           *string `json:"restartPolicy"`
 	ActiveDeadlineSeconds   *int    `json:"activeDeadlineSeconds"`
@@ -81,8 +87,7 @@ type Application struct {
 	ImageTag          string        `json:"imageTag"`
 	CronJobSpec       *CronJobSpec  `json:"cronJobSpec"`
 	FileList          *[]string     `json:"fileList"`
-	ContainerPort     *int          `json:"containerPort"`
-	ServicePort       *int          `json:"servicePort"`
+	Ports             *[]Port       `json:"ports"`
 	Config            *[]KeyValPair `json:"config,omitempty"`
 	Secret            *[]KeyValPair `json:"secret,omitempty"`
 	ReadinessProbe    *HealthCheck  `json:"readinessProbe"`
@@ -130,7 +135,9 @@ func Run(path string) error {
 		tmpls["kustomization.yaml"] = string(templates.KustomizationYAML)
 	case "Deployment":
 		tmpls["deployment.yaml"] = string(templates.DeploymentYAML)
-		tmpls["service.yaml"] = string(templates.ServiceYAML)
+		if app.Ports != nil {
+			tmpls["service.yaml"] = string(templates.ServiceYAML)
+		}
 		if app.AutoScale.Hpa != nil && app.Replicas == nil {
 			tmpls["hpa.yaml"] = string(templates.HpaYAML)
 		} else if app.AutoScale.Vpa != nil && app.Replicas != nil {
