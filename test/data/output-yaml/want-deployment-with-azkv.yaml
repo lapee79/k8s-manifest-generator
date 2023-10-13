@@ -24,7 +24,8 @@ spec:
                   - /bin/sleep
                   - "20"
           ports:
-            - containerPort: 80
+            - containerPort: 8080
+            - containerPort: 8443
           volumeMounts:
             - name: webSvc1
               mountPath: "/mnt/secrets-store"

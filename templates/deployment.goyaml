@@ -28,9 +28,11 @@ spec:
                   - /bin/sleep
                   - "20"
         {{- end}}
-        {{- if .ContainerPort}}
+        {{- if .Ports}}
           ports:
-            - containerPort: {{.ContainerPort}}
+            {{- range $value := .Ports}}
+            - containerPort: {{$value.ContainerPort}}
+            {{- end}}
         {{- end}}
         {{- if .Secret}}
           volumeMounts:
