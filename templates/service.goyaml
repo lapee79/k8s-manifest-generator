@@ -9,6 +9,8 @@ spec:
   selector:
     app.kubernetes.io/name: {{.Name}}
   ports:
+    {{- range $value := .Ports}}
     - protocol: TCP
-      port: {{.ServicePort}}
-      targetPort: {{.ContainerPort}}
+      port: {{$value.ContainerPort}}
+      targetPort: {{$value.ServicePort}}
+    {{- end}}

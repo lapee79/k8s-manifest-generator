@@ -26,4 +26,4 @@ spec:
               service:
                 name: {{.Name}}
                 port:
-                  number: {{.ServicePort}}
+                  number: {{.Ingress.WebPort}}
