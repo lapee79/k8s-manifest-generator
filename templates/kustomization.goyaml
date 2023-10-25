@@ -15,17 +15,21 @@ resources:
   {{- end}}
 {{- else}}
   {{- if eq .Kind "Deployment"}}
+  {{- if .Ports}}
   - service.yaml
+  {{- end}}
   - deployment.yaml
+  {{- if .AutoScale  }}
+  {{- if .AutoScale.Hpa}}
+    - hpa.yaml
+  {{- end}}
+  {{- if .AutoScale.Vpa}}
+    - vpa.yaml
+  {{- end}}
+  {{- end}}
   {{- end}}
   {{- if eq .Kind "CronJob"}}
   - cronjob.yaml
-  {{- end}}
-  {{- if .AutoScale.Hpa}}
-  - hpa.yaml
-  {{- end}}
-  {{- if .AutoScale.Vpa}}
-  - vpa.yaml
   {{- end}}
   {{- if .Config}}
   - configmap.yaml
