@@ -83,6 +83,18 @@ func TestGenerator(t *testing.T) {
 			wantResult: "test/data/output-yaml/want-kustomization-deployment-without-secret.yaml",
 		},
 		{
+			testName:   "GenerateKustomizationDeploymentOnly",
+			appFile:    "test/data/input-json/web-deployment-only.json",
+			tmpl:       "templates/kustomization.goyaml",
+			wantResult: "test/data/output-yaml/want-kustomization-deployment-only.yaml",
+		},
+		{
+			testName:   "GenerateKustomizationForCronjob",
+			appFile:    "test/data/input-json/cronjob-with-default.json",
+			tmpl:       "templates/kustomization.goyaml",
+			wantResult: "test/data/output-yaml/want-kustomization-for-cronjob.yaml",
+		},
+		{
 			testName:   "GenerateCronjobWithDefault",
 			appFile:    "test/data/input-json/cronjob-with-default.json",
 			tmpl:       "templates/cronjob.goyaml",
