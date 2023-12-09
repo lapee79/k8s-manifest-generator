@@ -138,10 +138,12 @@ func Run(path string) error {
 		if app.Ports != nil {
 			tmpls["service.yaml"] = string(templates.ServiceYAML)
 		}
-		if app.AutoScale.Hpa != nil && app.Replicas == nil {
-			tmpls["hpa.yaml"] = string(templates.HpaYAML)
-		} else if app.AutoScale.Vpa != nil && app.Replicas != nil {
-			tmpls["vpa.yaml"] = string(templates.VpaYAML)
+		if app.AutoScale != nil {
+			if app.AutoScale.Hpa != nil && app.Replicas == nil {
+				tmpls["hpa.yaml"] = string(templates.HpaYAML)
+			} else if app.AutoScale.Vpa != nil && app.Replicas != nil {
+				tmpls["vpa.yaml"] = string(templates.VpaYAML)
+			}
 		}
 		if app.Ingress != nil {
 			tmpls["ingress.yaml"] = string(templates.IngressYAML)
