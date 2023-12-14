@@ -11,3 +11,13 @@ spec:
     name: {{.Name}}
   updatePolicy:
     updateMode: "{{.AutoScale.Vpa.UpdateMode}}"
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: "{{.AutoScale.Vpa.MinAllowed.CPU}}"
+          memory: "{{.AutoScale.Vpa.MinAllowed.Memory}}"
+        maxAllowed:
+          cpu: "{{.AutoScale.Vpa.MaxAllowed.CPU}}"
+          memory: "{{.AutoScale.Vpa.MaxAllowed.Memory}}"
+        controlledResources: ["cpu", "memory"]
+        controlledValues: RequestsAndLimits
