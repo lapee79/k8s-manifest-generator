@@ -55,7 +55,9 @@ type Scaler struct {
 		MemUsage  int `json:"memUsage,omitempty"`
 	} `json:"hpa"`
 	Vpa *struct {
-		UpdateMode string `json:"updateMode"`
+		UpdateMode string   `json:"updateMode"`
+		MinAllowed Resource `json:"minAllowed"`
+		MaxAllowed Resource `json:"maxAllowed"`
 	} `json:"vpa"`
 }
 

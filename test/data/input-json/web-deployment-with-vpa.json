@@ -37,7 +37,15 @@
   "Replicas": 3,
   "AutoScale": {
     "Vpa": {
-      "UpdateMode": "Initial"
+      "UpdateMode": "Initial",
+      "MinAllowed": {
+        "CPU": "100m",
+        "Memory": "128Mi"
+      },
+      "MaxAllowed": {
+        "CPU": "2000m",
+        "Memory": "2048Mi"
+      }
     }
   },
   "AzKV":  "az-kv-01",
