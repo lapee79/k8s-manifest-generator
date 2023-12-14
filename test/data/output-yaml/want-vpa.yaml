@@ -11,3 +11,13 @@ spec:
     name: webSvc1
   updatePolicy:
     updateMode: "Initial"
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: "100m"
+          memory: "128Mi"
+        maxAllowed:
+          cpu: "2000m"
+          memory: "2048Mi"
+        controlledResources: ["cpu", "memory"]
+        controlledValues: RequestsAndLimits
