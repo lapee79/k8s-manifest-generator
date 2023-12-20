@@ -11,6 +11,7 @@ spec:
     name: {{.Name}}
   updatePolicy:
     updateMode: "{{.AutoScale.Vpa.UpdateMode}}"
+  resourcePolicy:
     containerPolicies:
       - containerName: "*"
         minAllowed:

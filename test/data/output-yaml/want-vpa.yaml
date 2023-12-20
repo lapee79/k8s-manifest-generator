@@ -11,6 +11,7 @@ spec:
     name: webSvc1
   updatePolicy:
     updateMode: "Initial"
+  resourcePolicy:
     containerPolicies:
       - containerName: "*"
         minAllowed:
