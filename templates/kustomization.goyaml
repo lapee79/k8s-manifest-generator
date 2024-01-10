@@ -31,7 +31,7 @@ resources:
   {{- end}}
   {{- end}}
   {{- if .Ingress}}
-    - ingress.yaml
+  - ingress.yaml
   {{- end}}
 {{- else if eq .Kind "CronJob"}}
   - cronjob.yaml
