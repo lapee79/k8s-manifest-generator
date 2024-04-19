@@ -10,8 +10,8 @@ spec:
     app.kubernetes.io/name: webSvc1
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 80
+      port: 80
+      targetPort: 8080
     - protocol: TCP
-      port: 8443
-      targetPort: 443
+      port: 443
+      targetPort: 8443

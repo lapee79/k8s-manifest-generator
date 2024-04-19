@@ -9,6 +9,9 @@ spec:
   timeZone: "{{.CronJobSpec.TimeZone}}"
   {{- end}}
   schedule: "{{.CronJobSpec.Schedule}}"
+  {{- if .CronJobSpec.ConcurrencyPolicy}}
+  concurrencyPolicy: {{.CronJobSpec.ConcurrencyPolicy}}
+  {{- end}}
   jobTemplate:
     spec:
       ttlSecondsAfterFinished: {{or .CronJobSpec.TtlSecondsAfterFinished 172800}}

@@ -11,6 +11,6 @@ spec:
   ports:
     {{- range $value := .Ports}}
     - protocol: TCP
-      port: {{$value.ContainerPort}}
-      targetPort: {{$value.ServicePort}}
+      port: {{$value.ServicePort}}
+      targetPort: {{$value.ContainerPort}}
     {{- end}}

@@ -90,21 +90,21 @@ func TestGenerator(t *testing.T) {
 		},
 		{
 			testName:   "GenerateKustomizationForCronjob",
-			appFile:    "test/data/input-json/cronjob-with-default.json",
+			appFile:    "test/data/input-json/cronjob-default.json",
 			tmpl:       "templates/kustomization.goyaml",
 			wantResult: "test/data/output-yaml/want-kustomization-for-cronjob.yaml",
 		},
 		{
 			testName:   "GenerateCronjobWithDefault",
-			appFile:    "test/data/input-json/cronjob-with-default.json",
+			appFile:    "test/data/input-json/cronjob-default.json",
 			tmpl:       "templates/cronjob.goyaml",
-			wantResult: "test/data/output-yaml/want-cronjob-with-default.yaml",
+			wantResult: "test/data/output-yaml/want-cronjob-default.yaml",
 		},
 		{
 			testName:   "GenerateCronjobWithoutDefault",
-			appFile:    "test/data/input-json/cronjob-without-default.json",
+			appFile:    "test/data/input-json/cronjob-custom.json",
 			tmpl:       "templates/cronjob.goyaml",
-			wantResult: "test/data/output-yaml/want-cronjob-without-default.yaml",
+			wantResult: "test/data/output-yaml/want-cronjob-custom.yaml",
 		},
 		{
 			testName:   "GenerateVpa",
