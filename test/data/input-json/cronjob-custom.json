@@ -16,6 +16,7 @@
     "TimeZone": "Etc/UTC",
     "Schedule": "5 4 * * *",
     "RestartPolicy": "OnFailure",
+    "ConcurrencyPolicy": "Forbid",
     "ActiveDeadlineSeconds": 600,
     "TtlSecondsAfterFinished": 6000,
     "BackoffLimit": 5

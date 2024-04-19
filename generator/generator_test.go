@@ -101,7 +101,7 @@ func TestGenerator(t *testing.T) {
 			wantResult: "test/data/output-yaml/want-cronjob-default.yaml",
 		},
 		{
-			testName:   "GenerateCronjobWithoutDefault",
+			testName:   "GenerateCronjobWithCustom",
 			appFile:    "test/data/input-json/cronjob-custom.json",
 			tmpl:       "templates/cronjob.goyaml",
 			wantResult: "test/data/output-yaml/want-cronjob-custom.yaml",
