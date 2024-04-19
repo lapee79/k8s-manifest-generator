@@ -77,6 +77,7 @@ type CronJobSpec struct {
 	ActiveDeadlineSeconds   *int    `json:"activeDeadlineSeconds"`
 	TtlSecondsAfterFinished *int    `json:"ttlSecondsAfterFinished"`
 	BackoffLimit            *int    `json:"backoffLimit"`
+	ConcurrencyPolicy       *string `json:"concurrencyPolicy"`
 }
 
 type Application struct {
